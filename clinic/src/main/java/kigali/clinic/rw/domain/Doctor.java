@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "doctor")
-@JsonIgnoreProperties({"appointments", "office"})
+@JsonIgnoreProperties({"appointments"})
 public class Doctor {
 
     @Id
@@ -26,13 +26,21 @@ public class Doctor {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @ManyToMany(mappedBy = "doctors")
+    // Owning side of Many-to-Many (as required by Quiz 2)
+    @ManyToMany
+    @JoinTable(
+        name = "doctor_specialization",
+        joinColumns = @JoinColumn(name = "doctor_id"),
+        inverseJoinColumns = @JoinColumn(name = "specialization_id")
+    )
     private List<Specialization> specializations = new ArrayList<>();
 
     @OneToMany(mappedBy = "doctor")
     private List<Appointment> appointments = new ArrayList<>();
 
-    @OneToOne(mappedBy = "doctor")
+    // Owning side of One-to-One (as required by Quiz 2 hint)
+    @OneToOne
+    @JoinColumn(name = "office_id")
     private Office office;
 
     public UUID getId() { return id; }

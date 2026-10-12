@@ -17,8 +17,8 @@ public class Office {
     @Column(name = "office_number")
     private int officeNumber;
 
-    @OneToOne
-    @JoinColumn(name = "doctor_id")
+    // Inverse side
+    @OneToOne(mappedBy = "office")
     private Doctor doctor;
 
     public UUID getId() { return id; }

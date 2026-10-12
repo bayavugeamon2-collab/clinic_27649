@@ -33,7 +33,11 @@ public class OfficeService {
         officeRepository.deleteById(id);
     }
 
-    // C3
+    // A3
+    public List<Office> findFreeOffices() {
+        return officeRepository.findFreeOffices();
+    }
+
     public Object getBusiestOffice() {
         List<Object[]> result = officeRepository.findBusiestOffice();
         if (result.isEmpty()) {

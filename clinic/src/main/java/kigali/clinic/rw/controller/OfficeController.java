@@ -40,7 +40,12 @@ public class OfficeController {
         officeService.deleteOffice(id);
     }
 
-    // C3
+    // A3
+    @GetMapping("/free")
+    public List<Office> free() {
+        return officeService.findFreeOffices();
+    }
+
     @GetMapping("/busiest")
     public Object busiest() {
         return officeService.getBusiestOffice();

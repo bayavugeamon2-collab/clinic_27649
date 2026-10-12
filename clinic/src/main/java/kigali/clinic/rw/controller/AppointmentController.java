@@ -25,12 +25,17 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    // A4 – path /api/appointments/save
+    // B1
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody Appointment appointment) {
         Object result = appointmentService.saveAppointment(appointment);
+
         if (result instanceof String) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+            String msg = (String) result;
+            if (msg.contains("past")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(msg);
         }
         return ResponseEntity.ok(result);
     }
@@ -47,45 +52,44 @@ public class AppointmentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // C4 protected delete
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
-        appointmentService.deleteAppointment(id);
+    public ResponseEntity<String> delete(@PathVariable UUID id) {
+        String message = appointmentService.deleteAppointment(id);
+
+        if (message.contains("does not exist")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
+        if (message.contains("prescriptions")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(message);
+        }
+        return ResponseEntity.ok(message);
     }
 
-    // A2
     @GetMapping("/by-status")
     public List<Appointment> byStatus(@RequestParam AppointmentStatus status) {
         return appointmentService.findByStatus(status);
     }
 
-    // A3
     @GetMapping("/between")
     public List<Appointment> between(@RequestParam String start, @RequestParam String end) {
-        LocalDate startDate = LocalDate.parse(start);
-        LocalDate endDate = LocalDate.parse(end);
-        return appointmentService.findBetween(startDate, endDate);
+        return appointmentService.findBetween(LocalDate.parse(start), LocalDate.parse(end));
     }
 
-    // C1
     @GetMapping("/stats/by-status")
     public List<Object[]> statsByStatus() {
         return appointmentService.countByStatus();
     }
 
-    // C4
     @PatchMapping("/cancel-day")
     public String cancelDay(@RequestParam UUID doctorId, @RequestParam String date) {
-        LocalDate localDate = LocalDate.parse(date);
-        return appointmentService.cancelDay(doctorId, localDate);
+        return appointmentService.cancelDay(doctorId, LocalDate.parse(date));
     }
 
-    // Bonus page
     @GetMapping("/page")
-    public Page<Appointment> page(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "appointmentDate,desc") String sort) {
-
+    public Page<Appointment> page(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "5") int size,
+                                  @RequestParam(defaultValue = "appointmentDate,desc") String sort) {
         String[] parts = sort.split(",");
         Sort.Direction direction = parts.length > 1 && parts[1].equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC : Sort.Direction.ASC;
@@ -93,10 +97,41 @@ public class AppointmentController {
         return appointmentService.getPage(pageable);
     }
 
-    // Bonus delete
     @DeleteMapping("/cancelled-before")
     public String cancelledBefore(@RequestParam String date) {
-        LocalDate localDate = LocalDate.parse(date);
-        return appointmentService.deleteCancelledBefore(localDate);
+        return appointmentService.deleteCancelledBefore(LocalDate.parse(date));
+    }
+
+    // B2
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> updateStatus(@PathVariable UUID id,
+                                               @RequestParam AppointmentStatus status) {
+        String message = appointmentService.updateStatus(id, status);
+
+        if (message.contains("does not exist")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
+        if (message.contains("Cannot change")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+        }
+        return ResponseEntity.ok(message);
+    }
+
+    // B3
+    @PatchMapping("/{id}/reschedule")
+    public ResponseEntity<String> reschedule(@PathVariable UUID id,
+                                             @RequestParam String newDate) {
+        String message = appointmentService.reschedule(id, LocalDate.parse(newDate));
+
+        if (message.contains("does not exist")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
+        if (message.contains("cannot be rescheduled") || message.contains("past")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+        }
+        if (message.contains("already booked")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(message);
+        }
+        return ResponseEntity.ok(message);
     }
 }

@@ -1,6 +1,7 @@
 package kigali.clinic.rw.domain.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,14 +13,17 @@ import kigali.clinic.rw.domain.Patient;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
-    // A1 – DERIVED
+    // old A1
     List<Patient> findByLastNameIgnoreCaseOrderByFirstNameAsc(String lastName);
 
-    // B4 – JPQL
+    // old B4
     @Query("SELECT DISTINCT a.patient FROM Appointment a WHERE a.doctor.id = :doctorId")
     List<Patient> findPatientsOfDoctor(@Param("doctorId") UUID doctorId);
 
-    // C2 – JPQL
+    // old C2
     @Query("SELECT a.patient FROM Appointment a GROUP BY a.patient HAVING COUNT(a) >= :min ORDER BY COUNT(a) DESC")
     List<Patient> findFrequentPatients(@Param("min") long min);
+
+    // for D2 and C3
+    Optional<Patient> findBySsNumber(String ssNumber);
 }

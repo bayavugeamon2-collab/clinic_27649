@@ -16,7 +16,7 @@
     <artifactId>clinic</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>clinic</name>
-    <description>Clinic Management System - JPA JPQL Quiz</description>
+    <description>Clinic Management System</description>
 
     <properties>
         <java.version>21</java.version>

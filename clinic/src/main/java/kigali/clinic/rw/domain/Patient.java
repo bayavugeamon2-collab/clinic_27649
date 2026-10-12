@@ -26,6 +26,9 @@ public class Patient {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @Column(name = "ss_number", unique = true)
+    private String ssNumber;
+
     @OneToMany(mappedBy = "patient")
     private List<Appointment> appointments = new ArrayList<>();
 
@@ -40,6 +43,9 @@ public class Patient {
 
     public LocalDate getDateOfBirth() { return dateOfBirth; }
     public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+
+    public String getSsNumber() { return ssNumber; }
+    public void setSsNumber(String ssNumber) { this.ssNumber = ssNumber; }
 
     public List<Appointment> getAppointments() { return appointments; }
     public void setAppointments(List<Appointment> appointments) { this.appointments = appointments; }

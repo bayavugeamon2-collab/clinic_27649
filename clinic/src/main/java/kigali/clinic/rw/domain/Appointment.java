@@ -1,8 +1,11 @@
 package kigali.clinic.rw.domain;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -27,6 +30,10 @@ public class Appointment {
     @JoinColumn(name = "doctor_id")
     private Doctor doctor;
 
+    @OneToMany(mappedBy = "appointment")
+    @JsonIgnore
+    private List<Prescription> prescriptions = new ArrayList<>();
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -41,4 +48,7 @@ public class Appointment {
 
     public Doctor getDoctor() { return doctor; }
     public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+
+    public List<Prescription> getPrescriptions() { return prescriptions; }
+    public void setPrescriptions(List<Prescription> prescriptions) { this.prescriptions = prescriptions; }
 }
