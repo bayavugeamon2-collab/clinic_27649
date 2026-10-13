@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    // B1
+    // B1 - Safe booking
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody Appointment appointment) {
         Object result = appointmentService.saveAppointment(appointment);
@@ -52,7 +53,7 @@ public class AppointmentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // C4 protected delete
+    // C4 - Protected delete
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = appointmentService.deleteAppointment(id);
@@ -102,7 +103,7 @@ public class AppointmentController {
         return appointmentService.deleteCancelledBefore(LocalDate.parse(date));
     }
 
-    // B2
+    // B2 - Status flow
     @PatchMapping("/{id}/status")
     public ResponseEntity<String> updateStatus(@PathVariable UUID id,
                                                @RequestParam AppointmentStatus status) {
@@ -117,11 +118,11 @@ public class AppointmentController {
         return ResponseEntity.ok(message);
     }
 
-    // B3
+    // B3 - Reschedule
     @PatchMapping("/{id}/reschedule")
     public ResponseEntity<String> reschedule(@PathVariable UUID id,
-                                             @RequestParam String newDate) {
-        String message = appointmentService.reschedule(id, LocalDate.parse(newDate));
+                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate newDate) {
+        String message = appointmentService.reschedule(id, newDate);
 
         if (message.contains("does not exist")) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
