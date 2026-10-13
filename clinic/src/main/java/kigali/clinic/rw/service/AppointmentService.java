@@ -182,7 +182,7 @@ public class AppointmentService {
         if (!doctorRepository.existsById(doctorId)) {
             return "The doctor with that id does not exist";
         }
-        return appointmentRepository.findByDoctorIdAndAppointmentDateAndStatusNotOrderByAppointmentDateAsc(
+        return appointmentRepository.findByDoctor_IdAndAppointmentDateAndStatusNotOrderByAppointmentDateAsc(
                 doctorId, date, AppointmentStatus.CANCELLED);
     }
 
@@ -196,7 +196,7 @@ public class AppointmentService {
                 AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED);
 
         return appointmentRepository
-                .findByPatientSsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                .findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
                         ssNumber, LocalDate.now(), statuses);
     }
 }

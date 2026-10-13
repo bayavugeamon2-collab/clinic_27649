@@ -41,12 +41,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     @Query("DELETE FROM Appointment a WHERE a.status = kigali.clinic.rw.domain.AppointmentStatus.CANCELLED AND a.appointmentDate < :date")
     int deleteCancelledBefore(@Param("date") LocalDate date);
 
-    // D1 – Doctor agenda for a day (DERIVED)
-    List<Appointment> findByDoctorIdAndAppointmentDateAndStatusNotOrderByAppointmentDateAsc(
-            UUID doctorId, LocalDate date, AppointmentStatus status);
+    // D1 – Doctor agenda for a day (Fixed with explicit JPQL query to prevent 500 crashes)
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.appointmentDate = :date AND a.status <> :status ORDER BY a.appointmentDate ASC")
+    List<Appointment> findByDoctor_IdAndAppointmentDateAndStatusNotOrderByAppointmentDateAsc(
+            @Param("doctorId") UUID doctorId, 
+            @Param("date") LocalDate date, 
+            @Param("status") AppointmentStatus status);
 
     // D2 – Upcoming appointments of a patient (DERIVED)
-    List<Appointment> findByPatientSsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+    List<Appointment> findByPatient_SsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
             String ssNumber, LocalDate today, List<AppointmentStatus> statuses);
 
     // for dashboard
